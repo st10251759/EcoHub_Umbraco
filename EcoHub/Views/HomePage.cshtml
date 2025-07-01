@@ -1,0 +1,244 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master.cshtml";
+    
+    // Get hero image URL
+    var heroImage = Model.HasValue("heroImage") ? Model.Value<IPublishedContent>("heroImage") : null;
+    var heroImageUrl = heroImage?.Url() ?? "";
+    
+    // Get hero button link
+    var heroButtonLink = Model.HasValue("heroButtonLink") ? Model.Value<IPublishedContent>("heroButtonLink") : null;
+    var heroButtonUrl = heroButtonLink?.Url() ?? "#";
+}
+
+<!-- Inline styles for hero section -->
+<style>
+    .hero-home {
+        background: linear-gradient(rgba(45, 90, 45, 0.7), rgba(74, 124, 74, 0.7))@if (!string.IsNullOrEmpty(heroImageUrl)){<text>, url('@heroImageUrl')</text>}@if (string.IsNullOrEmpty(heroImageUrl)){<text>, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23a8d5a8" width="1200" height="600"/><path fill="%236b9f6b" d="M0 300L100 280L200 320L300 290L400 310L500 285L600 305L700 295L800 315L900 285L1000 300L1100 290L1200 310V600H0V300Z"/></svg>')</text>};
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="hero hero-home">
+    <div class="container">
+        <div class="hero-content">
+            <h1>
+                @if (Model.HasValue("heroTitle"))
+                {
+                    @Model.Value("heroTitle")
+                }
+                else
+                {
+                    <text>Welcome to Sustainable Farming Hub</text>
+                }
+            </h1>
+            
+            <p>
+                @if (Model.HasValue("heroSubtitle"))
+                {
+                    @Model.Value("heroSubtitle")
+                }
+                else
+                {
+                    <text>Empowering farmers with sustainable practices for a greener future. Join our community and discover innovative farming solutions.</text>
+                }
+            </p>
+            
+            <div class="hero-actions">
+                <a href="@heroButtonUrl" class="btn btn-primary btn-lg">
+                    @if (Model.HasValue("heroButtonText"))
+                    {
+                        @Model.Value("heroButtonText")
+                    }
+                    else
+                    {
+                        <text>Get Started</text>
+                    }
+                </a>
+                <a href="/about" class="btn btn-outline btn-lg">Learn More</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+@if (Model.HasValue("stat1Value") || Model.HasValue("statsTitle"))
+{
+    <section class="statistics-section">
+        <div class="container">
+            @if (Model.HasValue("statsTitle"))
+            {
+                <h2 class="section-title text-center">@Model.Value("statsTitle")</h2>
+            }
+            
+            <div class="row">
+                @if (Model.HasValue("stat1Value") && Model.HasValue("stat1Label"))
+                {
+                    <div class="col-quarter">
+                        <div class="metric-card">
+                            <span class="metric-value">@Model.Value("stat1Value")</span>
+                            <span class="metric-label">@Model.Value("stat1Label")</span>
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.HasValue("stat2Value") && Model.HasValue("stat2Label"))
+                {
+                    <div class="col-quarter">
+                        <div class="metric-card">
+                            <span class="metric-value">@Model.Value("stat2Value")</span>
+                            <span class="metric-label">@Model.Value("stat2Label")</span>
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.HasValue("stat3Value") && Model.HasValue("stat3Label"))
+                {
+                    <div class="col-quarter">
+                        <div class="metric-card">
+                            <span class="metric-value">@Model.Value("stat3Value")</span>
+                            <span class="metric-label">@Model.Value("stat3Label")</span>
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.HasValue("stat4Value") && Model.HasValue("stat4Label"))
+                {
+                    <div class="col-quarter">
+                        <div class="metric-card">
+                            <span class="metric-value">@Model.Value("stat4Value")</span>
+                            <span class="metric-label">@Model.Value("stat4Label")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- About Section -->
+@if (Model.HasValue("aboutSection"))
+{
+    <section class="about-section">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="about-content">
+                        @Html.Raw(Model.Value("aboutSection"))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Features Section (Simplified) -->
+<section class="features-section">
+    <div class="container">
+        @if (Model.HasValue("featuresTitle"))
+        {
+            <h2 class="section-title text-center">@Model.Value("featuresTitle")</h2>
+        }
+        else
+        {
+            <h2 class="section-title text-center">Why Choose Sustainable Farming?</h2>
+        }
+        
+        <div class="row">
+            <!-- Default features when no content is available -->
+            <div class="col-third">
+                <div class="feature-card card">
+                    <div class="feature-icon">🌱</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Sustainable Practices</h3>
+                        <p class="feature-description">Learn eco-friendly farming techniques that protect the environment while increasing productivity.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-third">
+                <div class="feature-card card">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Expert Community</h3>
+                        <p class="feature-description">Connect with agricultural experts and fellow farmers to share knowledge and best practices.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-third">
+                <div class="feature-card card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Data-Driven Insights</h3>
+                        <p class="feature-description">Access real-time weather data, soil analysis, and crop management tools.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content text-center">
+            <h2>Ready to Transform Your Farming?</h2>
+            <p>Join thousands of farmers who are already using sustainable practices to improve their yields and protect the environment.</p>
+            <div class="cta-actions">
+                <a href="/community" class="btn btn-primary btn-lg">Join Our Community</a>
+                <a href="/resources" class="btn btn-secondary btn-lg">Browse Resources</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Inline JavaScript -->
+<script>
+    // Add some interactive animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate statistics when they come into view
+        const stats = document.querySelectorAll('.metric-value');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const finalValue = entry.target.textContent;
+                    const isNumber = !isNaN(parseFloat(finalValue));
+                    
+                    if (isNumber) {
+                        animateNumber(entry.target, parseFloat(finalValue));
+                    }
+                }
+            });
+        });
+        
+        stats.forEach(stat => observer.observe(stat));
+        
+        function animateNumber(element, finalValue) {
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(currentValue);
+            }, 30);
+        }
+        
+        // Add hover effects to feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>

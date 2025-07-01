@@ -1,0 +1,506 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master.cshtml";
+    
+    // Get hero image URL
+    var heroImage = Model.HasValue("heroImage") ? Model.Value<IPublishedContent>("heroImage") : null;
+    var heroImageUrl = heroImage?.Url() ?? "";
+    
+    // Get story image
+    var storyImage = Model.HasValue("storyImage") ? Model.Value<IPublishedContent>("storyImage") : null;
+}
+
+<!-- Page-specific styles -->
+<style>
+    .about-hero {
+        background: linear-gradient(rgba(45, 90, 45, 0.8), rgba(74, 124, 74, 0.8))@if (!string.IsNullOrEmpty(heroImageUrl)){<text>, url('@heroImageUrl')</text>}@if (string.IsNullOrEmpty(heroImageUrl)){<text>, url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><rect fill="%23a8d5a8" width="1200" height="400"/><path fill="%236b9f6b" d="M0 200L100 180L200 220L300 190L400 210L500 185L600 205L700 195L800 215L900 185L1000 200L1100 190L1200 210V400H0V200Z"/></svg>')</text>};
+        background-size: cover;
+        background-position: center;
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-divider {
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-green), var(--accent-green));
+        margin: var(--spacing-xxl) auto;
+        width: 100px;
+        border-radius: 2px;
+    }
+    
+    .mission-vision-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--spacing-xl);
+        margin: var(--spacing-xxl) 0;
+    }
+    
+    .mission-vision-card {
+        background: white;
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border-top: 4px solid var(--secondary-green);
+        transition: transform var(--transition-medium);
+    }
+    
+    .mission-vision-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--spacing-xl);
+        margin-top: var(--spacing-xl);
+    }
+    
+    .team-member-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-medium);
+        text-align: center;
+    }
+    
+    .team-member-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .member-photo {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        background: var(--pale-green);
+    }
+    
+    .member-info {
+        padding: var(--spacing-lg);
+    }
+    
+    .member-name {
+        color: var(--primary-green);
+        margin-bottom: var(--spacing-xs);
+        font-size: 1.3rem;
+    }
+    
+    .member-title {
+        color: var(--secondary-green);
+        font-weight: 500;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .member-bio {
+        color: var(--text-medium);
+        line-height: 1.6;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .member-contact {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .contact-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: var(--pale-green);
+        color: var(--primary-green);
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all var(--transition-fast);
+    }
+    
+    .contact-link:hover {
+        background: var(--secondary-green);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .story-section {
+        background: var(--background-cream);
+        padding: var(--spacing-xxl) 0;
+    }
+    
+    .story-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xxl);
+        align-items: center;
+    }
+    
+    .story-image {
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .story-image img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+    
+    @@media (max-width: 768px) {
+        .about-hero {
+            min-height: 50vh;
+            text-align: center;
+        }
+        
+        .story-content {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+        
+        .mission-vision-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+        
+        .team-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>
+                @if (Model.HasValue("heroTitle"))
+                {
+                    @Model.Value("heroTitle")
+                }
+                else
+                {
+                    <text>About Our Sustainable Farming Hub</text>
+                }
+            </h1>
+            
+            <p>
+                @if (Model.HasValue("heroSubtitle"))
+                {
+                    @Model.Value("heroSubtitle")
+                }
+                else
+                {
+                    <text>Committed to transforming agriculture through sustainable practices, innovation, and community collaboration.</text>
+                }
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Introduction Section -->
+@if (Model.HasValue("introSection"))
+{
+    <section class="intro-section">
+        <div class="container">
+            <div class="intro-content text-center" style="max-width: 800px; margin: 0 auto; padding: var(--spacing-xxl) 0;">
+                @Html.Raw(Model.Value("introSection"))
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Our Story Section -->
+@if (Model.HasValue("storyContent") || storyImage != null)
+{
+    <section class="story-section">
+        <div class="container">
+            @if (Model.HasValue("storyTitle"))
+            {
+                <h2 class="section-title text-center">@Model.Value("storyTitle")</h2>
+            }
+            else
+            {
+                <h2 class="section-title text-center">Our Story</h2>
+            }
+            
+            <div class="story-content">
+                <div class="story-text">
+                    @if (Model.HasValue("storyContent"))
+                    {
+                        @Html.Raw(Model.Value("storyContent"))
+                    }
+                    else
+                    {
+                        <p>Our journey began with a simple belief: farming can be both profitable and environmentally responsible. Founded by a group of passionate agriculturalists, we've dedicated ourselves to promoting sustainable farming practices that benefit farmers, communities, and the planet.</p>
+                        <p>Through years of research, collaboration with farmers worldwide, and continuous innovation, we've built a platform that connects knowledge, technology, and community to create a more sustainable future for agriculture.</p>
+                    }
+                </div>
+                
+                @if (storyImage != null)
+                {
+                    <div class="story-image">
+                        <img src="@storyImage.Url()" alt="Our Story" />
+                    </div>
+                }
+                else
+                {
+                    <div class="story-image">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'><rect fill='%23a8d5a8' width='400' height='300'/><text x='50%' y='50%' font-family='Arial' font-size='18' fill='%23ffffff' text-anchor='middle' dy='.3em'>Our Story Image</text></svg>" alt="Our Story" />
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<div class="section-divider"></div>
+
+<!-- Mission, Vision & Values Section -->
+<section class="mission-vision-section">
+    <div class="container">
+        <div class="mission-vision-grid">
+            <!-- Mission -->
+            <div class="mission-vision-card">
+                <h3>
+                    @if (Model.HasValue("missionTitle"))
+                    {
+                        @Model.Value("missionTitle")
+                    }
+                    else
+                    {
+                        <text>Our Mission</text>
+                    }
+                </h3>
+                <p>
+                    @if (Model.HasValue("missionContent"))
+                    {
+                        @Model.Value("missionContent")
+                    }
+                    else
+                    {
+                        <text>To empower farmers worldwide with sustainable agricultural practices, innovative technologies, and community support that increase productivity while protecting our planet for future generations.</text>
+                    }
+                </p>
+            </div>
+            
+            <!-- Vision -->
+            <div class="mission-vision-card">
+                <h3>
+                    @if (Model.HasValue("visionTitle"))
+                    {
+                        @Model.Value("visionTitle")
+                    }
+                    else
+                    {
+                        <text>Our Vision</text>
+                    }
+                </h3>
+                <p>
+                    @if (Model.HasValue("visionContent"))
+                    {
+                        @Model.Value("visionContent")
+                    }
+                    else
+                    {
+                        <text>A world where every farm operates sustainably, every farmer prospers, and agriculture serves as a solution to environmental challenges rather than a contributor to them.</text>
+                    }
+                </p>
+            </div>
+        </div>
+        
+        <!-- Values -->
+        @if (Model.HasValue("valuesContent"))
+        {
+            <div class="values-section text-center" style="margin-top: var(--spacing-xxl);">
+                <h3>
+                    @if (Model.HasValue("valuesTitle"))
+                    {
+                        @Model.Value("valuesTitle")
+                    }
+                    else
+                    {
+                        <text>Our Values</text>
+                    }
+                </h3>
+                <div style="max-width: 800px; margin: 0 auto;">
+                    @Html.Raw(Model.Value("valuesContent"))
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Team Section -->
+@if (Model.HasValue("teamMembers"))
+{
+    <section class="team-section">
+        <div class="container">
+            <h2 class="section-title text-center">
+                @if (Model.HasValue("teamTitle"))
+                {
+                    @Model.Value("teamTitle")
+                }
+                else
+                {
+                    <text>Meet Our Team</text>
+                }
+            </h2>
+            
+            <div class="team-grid">
+                @{
+                    var teamMembers = Model.HasValue("teamMembers") ? Model.Value<IEnumerable<IPublishedElement>>("teamMembers") : null;
+                }
+                
+                @if (teamMembers != null && teamMembers.Any())
+                {
+                    @foreach (var member in teamMembers)
+                    {
+                        var memberImage = member.HasValue("memberImage") ? member.Value<IPublishedContent>("memberImage") : null;
+                        
+                        <div class="team-member-card">
+                            @if (memberImage != null)
+                            {
+                                <img src="@memberImage.Url()" alt="@member.Value("memberName")" class="member-photo" />
+                            }
+                            else
+                            {
+                                <div class="member-photo" style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--primary-green);">
+                                    👤
+                                </div>
+                            }
+                            
+                            <div class="member-info">
+                                <h4 class="member-name">@member.Value("memberName")</h4>
+                                <p class="member-title">@member.Value("memberTitle")</p>
+                                
+                                @if (member.HasValue("memberBio"))
+                                {
+                                    <p class="member-bio">@member.Value("memberBio")</p>
+                                }
+                                
+                                <div class="member-contact">
+                                    @if (member.HasValue("memberEmail"))
+                                    {
+                                        <a href="mailto:@member.Value("memberEmail")" class="contact-link" title="Email">
+                                            📧
+                                        </a>
+                                    }
+                                    
+                                    @if (member.HasValue("memberLinkedIn"))
+                                    {
+                                        <a href="@member.Value("memberLinkedIn")" target="_blank" class="contact-link" title="LinkedIn">
+                                            💼
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Default team members when no content is available -->
+                    <div class="team-member-card">
+                        <div class="member-photo" style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--primary-green);">
+                            👤
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">Dr. Sarah Johnson</h4>
+                            <p class="member-title">Founder & CEO</p>
+                            <p class="member-bio">Agricultural scientist with 15+ years of experience in sustainable farming practices and environmental conservation.</p>
+                            <div class="member-contact">
+                                <a href="mailto:sarah@example.com" class="contact-link" title="Email">📧</a>
+                                <a href="#" class="contact-link" title="LinkedIn">💼</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member-card">
+                        <div class="member-photo" style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--primary-green);">
+                            👤
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">Michael Chen</h4>
+                            <p class="member-title">Head of Technology</p>
+                            <p class="member-bio">Technology innovator focused on developing digital solutions for modern sustainable agriculture.</p>
+                            <div class="member-contact">
+                                <a href="mailto:michael@example.com" class="contact-link" title="Email">📧</a>
+                                <a href="#" class="contact-link" title="LinkedIn">💼</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member-card">
+                        <div class="member-photo" style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--primary-green);">
+                            👤
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">Emily Rodriguez</h4>
+                            <p class="member-title">Community Manager</p>
+                            <p class="member-bio">Passionate about building farmer communities and facilitating knowledge sharing across agricultural networks.</p>
+                            <div class="member-contact">
+                                <a href="mailto:emily@example.com" class="contact-link" title="Email">📧</a>
+                                <a href="#" class="contact-link" title="LinkedIn">💼</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Main Content Section -->
+@if (Model.HasValue("mainContent"))
+{
+    <section class="main-content-section">
+        <div class="container">
+            <div style="max-width: 800px; margin: 0 auto; padding: var(--spacing-xxl) 0;">
+                @Html.Raw(Model.Value("mainContent"))
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content text-center">
+            <h2>Ready to Join Our Mission?</h2>
+            <p>Be part of the sustainable farming revolution. Connect with our community and start making a difference today.</p>
+            <div class="cta-actions">
+                <a href="/community" class="btn btn-primary btn-lg">Join Our Community</a>
+                <a href="/contact" class="btn btn-outline btn-lg">Get in Touch</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Page-specific JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate cards on scroll
+        const cards = document.querySelectorAll('.mission-vision-card, .team-member-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+        
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    });
+</script>

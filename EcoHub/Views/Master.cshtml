@@ -1,0 +1,272 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    // This is the Master Layout - no Layout = null needed
+    var siteName = "Sustainable Farming Hub";
+    var currentYear = DateTime.Now.Year;
+    
+    // Get site settings if you have them
+    var siteRoot = Umbraco.ContentAtRoot().FirstOrDefault();
+    if (siteRoot != null && siteRoot.HasValue("siteName"))
+    {
+        siteName = siteRoot.Value<string>("siteName");
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- Title -->
+    <title>@(Model.HasValue("pageTitle") ? Model.Value("pageTitle") : Model.Name) - @siteName</title>
+    
+    <!-- Meta Description -->
+    @if (Model.HasValue("metaDescription"))
+    {
+        <meta name="description" content="@Model.Value("metaDescription")" />
+    }
+    else
+    {
+        <meta name="description" content="Sustainable farming solutions for a greener future. Connect with farmers, share knowledge, and promote eco-friendly agricultural practices." />
+    }
+    
+    <!-- Keywords -->
+    @if (Model.HasValue("metaKeywords"))
+    {
+        <meta name="keywords" content="@Model.Value("metaKeywords")" />
+    }
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="@(Model.HasValue("pageTitle") ? Model.Value("pageTitle") : Model.Name) - @siteName" />
+    <meta property="og:description" content="@(Model.HasValue("metaDescription") ? Model.Value("metaDescription") : "Sustainable farming solutions for a greener future")" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="~/css/site-styles.css" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    
+    <!-- Additional head content from child templates -->
+    @RenderSection("head", required: false)
+</head>
+<body class="@(Model.ContentType.Alias.ToLower())">
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo/Site Name -->
+                <div class="logo">
+                    <a href="/" style="color: white; text-decoration: none;">
+                        @if (siteRoot != null && siteRoot.HasValue("siteLogo"))
+                        {
+                            var logo = siteRoot.Value<IPublishedContent>("siteLogo");
+                            if (logo != null)
+                            {
+                                <img src="@logo.Url()" alt="@siteName" style="height: 40px;" />
+                            }
+                            else
+                            {
+                                @siteName
+                            }
+                        }
+                        else
+                        {
+                            <text>🌱 @siteName</text>
+                        }
+                    </a>
+                </div>
+                
+                <!-- Main Navigation -->
+                <nav class="main-navigation">
+                    <ul class="nav-menu">
+                        @{
+                            var homePage = Umbraco.ContentAtRoot().FirstOrDefault();
+                            if (homePage != null)
+                            {
+                                <!-- Home -->
+                                <li>
+                                    <a href="@homePage.Url()" class="@(Model.Id == homePage.Id ? "active" : "")">
+                                        Home
+                                    </a>
+                                </li>
+                                
+                                <!-- Main Navigation Items -->
+                                var mainNavItems = homePage.Children().Where(x => x.IsVisible() && x.HasValue("showInNavigation") ? x.Value<bool>("showInNavigation") : true);
+                                foreach (var item in mainNavItems)
+                                {
+                                    <li>
+                                        <a href="@item.Url()" class="@(Model.Path.Contains(item.Path) ? "active" : "")">
+                                            @item.Name
+                                        </a>
+                                        
+                                        @* Sub-navigation if children exist *@
+                                        @if (item.Children().Any(x => x.IsVisible()))
+                                        {
+                                            <ul class="sub-menu">
+                                                @foreach (var subItem in item.Children().Where(x => x.IsVisible()))
+                                                {
+                                                    <li>
+                                                        <a href="@subItem.Url()">@subItem.Name</a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                    </li>
+                                }
+                            }
+                        }
+                        
+                        <!-- Static Navigation Items -->
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/farming-tips">Farming Tips</a></li>
+                        <li><a href="/community">Community</a></li>
+                        <li><a href="/resources">Resources</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Breadcrumb Navigation -->
+    @if (Model.Level > 1)
+    {
+        <div class="breadcrumb-container">
+            <div class="container">
+                <nav class="breadcrumb">
+                    <a href="/">Home</a>
+                    @foreach (var ancestor in Model.Ancestors().Reverse())
+                    {
+                        <span class="separator">›</span>
+                        <a href="@ancestor.Url()">@ancestor.Name</a>
+                    }
+                    <span class="separator">›</span>
+                    <span class="current">@Model.Name</span>
+                </nav>
+            </div>
+        </div>
+    }
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <!-- Company Info -->
+                <div class="col-third">
+                    <div class="footer-section">
+                        <h5>@siteName</h5>
+                        <p>Empowering sustainable farming practices for a greener future. Join our community of eco-conscious farmers and agricultural enthusiasts.</p>
+                        
+                        <!-- Social Media Links -->
+                        <div class="social-links">
+                            <a href="#" class="social-link" title="Facebook">📘</a>
+                            <a href="#" class="social-link" title="Twitter">🐦</a>
+                            <a href="#" class="social-link" title="Instagram">📷</a>
+                            <a href="#" class="social-link" title="LinkedIn">💼</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="col-third">
+                    <div class="footer-section">
+                        <h5>Quick Links</h5>
+                        <ul class="footer-links">
+                            <li><a href="/farming-techniques">Farming Techniques</a></li>
+                            <li><a href="/crop-management">Crop Management</a></li>
+                            <li><a href="/soil-health">Soil Health</a></li>
+                            <li><a href="/weather-insights">Weather Insights</a></li>
+                            <li><a href="/market-prices">Market Prices</a></li>
+                            <li><a href="/sustainability-tips">Sustainability Tips</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Contact Info -->
+                <div class="col-third">
+                    <div class="footer-section">
+                        <h5>Contact Us</h5>
+                        <div class="contact-info">
+                            <p>📧 info@sustainablefarminghub.com</p>
+                            <p>📞 +1 (555) 123-4567</p>
+                            <p>📍 123 Farm Lane, Green Valley, CA 12345</p>
+                        </div>
+                        
+                        <!-- Newsletter Signup -->
+                        <div class="newsletter-signup">
+                            <h6>Stay Updated</h6>
+                            <form class="newsletter-form" action="/newsletter-signup" method="post">
+                                <input type="email" placeholder="Your email address" required class="form-control" />
+                                <button type="submit" class="btn btn-primary">Subscribe</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-half">
+                        <p>&copy; @currentYear @siteName. All rights reserved.</p>
+                    </div>
+                    <div class="col-half text-right">
+                        <div class="footer-legal">
+                            <a href="/privacy-policy">Privacy Policy</a>
+                            <span class="separator">|</span>
+                            <a href="/terms-of-service">Terms of Service</a>
+                            <span class="separator">|</span>
+                            <a href="/cookie-policy">Cookie Policy</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="~/js/site.js"></script>
+    
+    <!-- Additional scripts from child templates -->
+    @RenderSection("scripts", required: false)
+    
+    <!-- Mobile Menu Script -->
+    <script>
+        function toggleMobileMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            
+            navMenu.classList.toggle('mobile-active');
+            mobileToggle.classList.toggle('active');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.querySelector('.main-navigation');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (!nav.contains(event.target)) {
+                document.querySelector('.nav-menu').classList.remove('mobile-active');
+                toggle.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
